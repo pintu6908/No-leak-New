@@ -1,1 +1,162 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="ZEROCHAT — প্রাইভেট পিয়ার-টু-পিয়ার মেসেজিং। অ্যাকাউন্ট নেই, ডাটাবেস নেই, মেসেজ সংরক্ষণ নেই।">
+  <meta name="theme-color" content="#0f0f12">
+  <title>ZEROCHAT — প্রাইভেট চ্যাট</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+  <div id="app">
+    <!-- Welcome Screen -->
+    <section id="screen-welcome" class="screen active">
+      <div class="container">
+        <div class="logo-area">
+          <div class="logo-icon">🔒</div>
+          <h1 class="logo-text">ZEROCHAT</h1>
+          <p class="tagline">প্রাইভেট • পিয়ার-টু-পিয়ার • কোনো অ্যাকাউন্ট নেই</p>
+        </div>
 
+        <div class="card actions-card">
+          <button id="btn-create" class="btn btn-primary btn-lg">
+            <span class="btn-icon">+</span>
+            নতুন প্রাইভেট রুম তৈরি করুন
+          </button>
+          <div class="divider"><span>অথবা</span></div>
+          <button id="btn-join-show" class="btn btn-secondary btn-lg">
+            বিদ্যমান রুমে যোগ দিন
+          </button>
+        </div>
+
+        <div class="info-box">
+          <h3>🔒 কীভাবে কাজ করে?</h3>
+          <ul>
+            <li>মেসেজ ও ফাইল সরাসরি আপনার ডিভাইস থেকে অন্যের ডিভাইসে যায় (WebRTC)</li>
+            <li>সার্ভার শুধু কানেকশন স্থাপনে সাহায্য করে — চ্যাট দেখে না</li>
+            <li>কোনো অ্যাকাউন্ট, লগইন বা প্রোফাইল নেই</li>
+            <li>মেসেজ সংরক্ষণ হয় না, হিস্ট্রি থাকে না</li>
+          </ul>
+          <p class="warning-note">⚠️ নেটওয়ার্ক মেটাডেটা (IP ঠিকানা ইত্যাদি) ইনফ্রাস্ট্রাকচার প্রোভাইডারদের কাছে দৃশ্যমান হতে পারে। STUN/TURN IP লুকাতে পারে না।</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Create Room Screen -->
+    <section id="screen-create" class="screen">
+      <div class="container">
+        <button class="btn-back" data-back="welcome">← ফিরে যান</button>
+        <div class="card">
+          <h2>নতুন রুম তৈরি হচ্ছে...</h2>
+          <div class="loader" id="create-loader"></div>
+          <div id="create-result" class="hidden">
+            <p class="success-text">রুম তৈরি হয়েছে!</p>
+            <div class="room-id-box">
+              <label>রুম আইডি (শেয়ার করুন)</label>
+              <div class="room-id-display">
+                <code id="created-room-id"></code>
+                <button id="btn-copy-id" class="btn btn-sm">কপি</button>
+              </div>
+            </div>
+            <p class="hint">এই আইডি শুধু বিশ্বস্ত ব্যক্তির সাথে শেয়ার করুন।</p>
+            <button id="btn-enter-created" class="btn btn-primary btn-lg">রুমে প্রবেশ করুন</button>
+          </div>
+          <div id="create-error" class="error-box hidden"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Join Room Screen -->
+    <section id="screen-join" class="screen">
+      <div class="container">
+        <button class="btn-back" data-back="welcome">← ফিরে যান</button>
+        <div class="card">
+          <h2>রুমে যোগ দিন</h2>
+          <form id="join-form">
+            <label for="join-room-id">রুম আইডি</label>
+            <input type="text" id="join-room-id" placeholder="৩২ অক্ষরের হেক্স আইডি" maxlength="32" autocomplete="off" spellcheck="false" required>
+            <button type="submit" class="btn btn-primary btn-lg">যোগ দিন</button>
+          </form>
+          <div id="join-error" class="error-box hidden"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Waiting Screen -->
+    <section id="screen-waiting" class="screen">
+      <div class="container">
+        <div class="card waiting-card">
+          <div class="pulse-ring"></div>
+          <h2>অপেক্ষা করছি...</h2>
+          <p id="waiting-status">রুম আইডি: <code id="waiting-room-id"></code></p>
+          <p class="hint">অন্য ব্যক্তি যোগ দিলে কানেকশন শুরু হবে।</p>
+          <div class="safety-box">
+            <h4>🔐 নিরাপত্তা যাচাই</h4>
+            <p>কানেক্ট হওয়ার পর একটি সংক্ষিপ্ত কোড দেখাবে। ফোনে বা অন্য মাধ্যমে মিলিয়ে নিন যে কোড একই আছে কিনা।</p>
+          </div>
+          <button id="btn-leave-waiting" class="btn btn-secondary">রুম ছাড়ুন</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chat Screen -->
+    <section id="screen-chat" class="screen">
+      <header class="chat-header">
+        <div class="header-left">
+          <button id="btn-leave-chat" class="btn-icon-only" title="রুম ছাড়ুন">←</button>
+          <div class="connection-info">
+            <span id="conn-status" class="status-dot offline"></span>
+            <span id="conn-text">সংযোগ হচ্ছে...</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button id="btn-reconnect" class="btn btn-sm btn-reconnect hidden" title="পুনরায় সংযোগ">পুনঃসংযোগ</button>
+          <button id="btn-toggle-theme" class="btn-icon-only" title="থিম পরিবর্তন">🌓</button>
+          <button id="btn-show-safety" class="btn-icon-only" title="নিরাপত্তা কোড">🔐</button>
+        </div>
+      </header>
+
+      <div id="messages" class="messages"></div>
+
+      <div id="file-progress" class="file-progress hidden">
+        <div class="progress-bar"><div id="progress-fill"></div></div>
+        <span id="progress-text">ফাইল পাঠানো হচ্ছে...</span>
+      </div>
+
+      <footer class="chat-input-area">
+        <button id="btn-attach" class="btn-icon-only" title="ফাইল সংযুক্ত করুন">📎</button>
+        <input type="file" id="file-input" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.txt,.zip,.rar" multiple>
+        <textarea id="message-input" placeholder="মেসেজ লিখুন..." rows="1" maxlength="4000"></textarea>
+        <button id="btn-send" class="btn-send" title="পাঠান">➤</button>
+      </footer>
+    </section>
+
+    <!-- Error / Disconnected Screen -->
+    <section id="screen-error" class="screen">
+      <div class="container">
+        <div class="card error-card">
+          <div class="error-icon">⚠️</div>
+          <h2 id="error-title">সংযোগ বিচ্ছিন্ন</h2>
+          <p id="error-message">অন্য পক্ষ চলে গেছে বা নেটওয়ার্ক সমস্যা হয়েছে।</p>
+          <button id="btn-error-home" class="btn btn-primary">হোমে ফিরে যান</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Safety Modal -->
+    <div id="safety-modal" class="modal hidden">
+      <div class="modal-content">
+        <h3>🔐 নিরাপত্তা যাচাই কোড</h3>
+        <p>এই কোডটি অন্য পক্ষের সাথে মিলিয়ে নিন (ফোন কল বা অন্য মাধ্যমে)। যদি একই হয়, তাহলে ম্যান-ইন-দ্য-মিডল অ্যাটাকের সম্ভাবনা কম।</p>
+        <div class="safety-code" id="safety-code">----</div>
+        <p class="limitation">সীমাবদ্ধতা: এটি WebRTC fingerprint ভিত্তিক। পুরোপুরি নিশ্চিত করতে হলে অফলাইন তুলনা করুন। সার্ভার আপনার পরিচয় যাচাই করে না।</p>
+        <button id="btn-close-safety" class="btn btn-secondary">বন্ধ করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
